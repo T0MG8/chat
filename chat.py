@@ -17,21 +17,29 @@ def keyword_answer(question):
 
     rules = [
         {
-            "keywords": ["dataframe", "samenvoegen", "merge"],
+            "keywords": ["dataframe", "samenvoegen", "merge", "hoe voeg", "samengaan", "combineer", "merge"],
             "answer": "Je kunt twee DataFrames samenvoegen met `.merge()`. Bijvoorbeeld:\n```python\ndf_merged = df1.merge(df2, on='kolomnaam')\n```"
         },
         {
-            "keywords": ["dataframe", "toevoegen", "rij"],
+            "keywords": ["dataframe", "toevoegen", "rij", "hoe voeg", "nieuwe rij", "rij toevoegen"],
             "answer": "Je kunt een rij toevoegen met `.loc[]` of `pd.concat()`. Bijvoorbeeld:\n```python\ndf.loc[len(df)] = [waarde1, waarde2]\n```"
         },
         {
-            "keywords": ["dataframe", "kolom", "verwijderen"],
+            "keywords": ["dataframe", "kolom", "verwijderen", "hoe verwijder", "kolom verwijderen", "verwijder kolom"],
             "answer": "Gebruik `drop()` om een kolom te verwijderen:\n```python\ndf = df.drop('kolomnaam', axis=1)\n```"
         },
         {
-            "keywords": ["null", "missende", "waardes", "verwijderen"],
+            "keywords": ["null", "missende", "waardes", "verwijderen", "hoe verwijder", "null waarden", "leeg", "dropna"],
             "answer": "Gebruik `dropna()` om rijen met missende waardes te verwijderen:\n```python\ndf = df.dropna()\n```"
         },
+        {
+            "keywords": ["dataframe", "kolom", "toevoegen", "hoe voeg", "kolom toevoegen"],
+            "answer": "Gebruik `df['nieuwe_kolom'] = waarde` om een kolom toe te voegen. Bijvoorbeeld:\n```python\ndf['leeftijd_plus_1'] = df['leeftijd'] + 1\n```"
+        },
+        {
+            "keywords": ["dataframe", "filteren", "selecteren", "hoe filter", "voorwaarde", "filteren op"],
+            "answer": "Gebruik een voorwaarde binnen `[]` om te filteren. Bijvoorbeeld:\n```python\nfiltered_df = df[df['leeftijd'] > 30]\n```"
+        }
     ]
 
     for rule in rules:
