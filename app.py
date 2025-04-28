@@ -38,8 +38,7 @@ if get_location:
         height=0,
     )
 
-# Event listener om locatie op te vangen
-location_event = st.experimental_get_query_params().get("location", None)
+location_event = st.query_params.get("location", None)
 
 # Start en stop tracking
 col1, col2 = st.columns(2)
@@ -59,9 +58,6 @@ if st.session_state.tracking:
 # Handmatig toegevoegde test (voor demonstratie)
 if get_location:
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # Fake locatie als test: Amsterdam centrum
-    lat, lon = 52.3702, 4.8952
-    st.session_state.locations.append({"timestamp": now, "latitude": lat, "longitude": lon})
 
 # Toon verzamelde locaties
 if st.session_state.locations:
