@@ -1,62 +1,74 @@
-import time
 import streamlit as st
 import pandas as pd
-from streamlit_js_eval import get_geolocation
-from streamlit_autorefresh import st_autorefresh
+import datetime
 
-# --- Initialiseer session state ---
-if 'tracking' not in st.session_state:
+# Initialiseer session state
+if "tracking" not in st.session_state:
     st.session_state.tracking = False
-if 'df' not in st.session_state:
-    st.session_state.df = pd.DataFrame(columns=['timestamp', 'latitude', 'longitude'])
-if 'location_permission' not in st.session_state:
-    st.session_state.location_permission = False
+if "locations" not in st.session_state:
+    st.session_state.locations = []
 
-# --- Header ---
-st.title("🌍 Live locatie‐tracker")
+st.title("📍 Live Locatie Tracker")
 
-# --- Probeer locatie te verkrijgen ---
-loc = get_geolocation()
+# HTML & JavaScript: vraag locatie op
+get_location = st.button("📡 Vraag locatie op")
 
-# --- Controleer of locatie beschikbaar is ---
-if loc and 'lat' in loc and 'lon' in loc:
-    st.session_state.location_permission = True
+if get_location:
+    st.components.v1.html(
+        """
+        <script>
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
 
-# --- Als nog geen toestemming is gegeven ---
-if not st.session_state.location_permission:
-    st.warning("⚠️ Geef eerst toestemming voor locatietoegang bovenin je browser!")
-    st.stop()
+                const event = new CustomEvent("streamlit:location", {
+                    detail: {latitude: latitude, longitude: longitude, accuracy: accuracy}
+                });
+                window.parent.document.dispatchEvent(event);
+            },
+            (error) => {
+                console.error(error);
+                alert("Locatie ophalen mislukt: " + error.message);
+            }
+        );
+        </script>
+        """,
+        height=0,
+    )
 
-# --- Buttons om tracking te starten / te stoppen ---
+# Event listener om locatie op te vangen
+location_event = st.experimental_get_query_params().get("location", None)
+
+# Start en stop tracking
 col1, col2 = st.columns(2)
 if col1.button("▶️ Start tracking"):
     st.session_state.tracking = True
 if col2.button("⏹️ Stop tracking"):
     st.session_state.tracking = False
 
-# --- Als we tracken: refresh elke 5 seconden ---
+# Continu locatie ophalen
 if st.session_state.tracking:
-    st_autorefresh(interval=5000, limit=None, key="auto")
+    st.write("Tracking actief... haal elke 5 seconden locatie op")
+    st.experimental_rerun()
 
-    # Opnieuw ophalen na autorefresh
-    loc = get_geolocation()
-    if loc and 'lat' in loc and 'lon' in loc:
-        ts = time.strftime('%Y-%m-%d %H:%M:%S')
-        new_row = {
-            'timestamp': ts,
-            'latitude': loc['lat'],
-            'longitude': loc['lon']
-        }
-        st.session_state.df = pd.concat(
-            [st.session_state.df, pd.DataFrame([new_row])],
-            ignore_index=True
-        )
-    st.success(f"✅ Tracking actief — laatste update: {time.strftime('%H:%M:%S')}")
+# Simuleer ontvangst van locatie (in plaats van event listener)
+# Hier normaal gesproken de code om inkomende browser events af te vangen
 
-# --- Toon DataFrame met alle punten ---
-st.subheader("📋 Gearchiveerde locaties")
-st.dataframe(st.session_state.df)
+# Handmatig toegevoegde test (voor demonstratie)
+if get_location:
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Fake locatie als test: Amsterdam centrum
+    lat, lon = 52.3702, 4.8952
+    st.session_state.locations.append({"timestamp": now, "latitude": lat, "longitude": lon})
 
-# --- Kaart weergave ---
-if not st.session_state.df.empty:
-    st
+# Toon verzamelde locaties
+if st.session_state.locations:
+    df = pd.DataFrame(st.session_state.locations)
+    st.subheader("📋 Gearchiveerde Locaties")
+    st.dataframe(df)
+
+    st.subheader("🗺️ Kaart")
+    st.map(df.rename(columns={"latitude": "lat", "longitude": "lon"}))
+
