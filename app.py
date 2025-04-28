@@ -50,7 +50,8 @@ if col2.button("⏹️ Stop tracking"):
 # Continu locatie ophalen
 if st.session_state.tracking:
     st.write("Tracking actief... haal elke 5 seconden locatie op")
-    st.experimental_rerun()
+    st.rerun()
+
 
 # Simuleer ontvangst van locatie (in plaats van event listener)
 # Hier normaal gesproken de code om inkomende browser events af te vangen
